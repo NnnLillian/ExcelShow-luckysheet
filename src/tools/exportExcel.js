@@ -1,9 +1,9 @@
 const Excel = require('exceljs')
+const { colorHex } = require('./colorHex')
 
-var exportExcel = exports.exportExcel =  async function (luckysheet) { // 参数为luckysheet.getluckysheetfile()获取的对象
+exports.exportExcel = async function (luckysheet) { // 参数为luckysheet.getluckysheetfile()获取的对象
 	// 1.创建工作簿，可以为工作簿添加属性
 	const workbook = new Excel.Workbook()
-    console.log("luc",luckysheet)
 	// 2.创建表格，第二个参数可以配置创建什么样的工作表
 	luckysheet.every(function (table) {
 		if (table.data.length === 0) return true
@@ -17,20 +17,18 @@ var exportExcel = exports.exportExcel =  async function (luckysheet) { // 参数
 	// 4.写入 buffer
 	const buffer = await workbook.xlsx.writeBuffer()
 	// 5.下载excel
-    // workbook.xlsx.writeBuffer().then((buf)=>{
-        let blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8' });
-        const downloadElement = document.createElement('a')
-        let href = window.URL.createObjectURL(blob)
-        downloadElement.href = href
-        downloadElement.download = document.getElementById("luckysheet_info_detail_input").value+".xlsx"; // 文件名字
-        document.body.appendChild(downloadElement)
-        downloadElement.click()
-        document.body.removeChild(downloadElement) // 下载完成移除元素
-        window.URL.revokeObjectURL(href) // 释放掉blob对象
-    // })
+	let blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8' });
+	const downloadElement = document.createElement('a')
+	let href = window.URL.createObjectURL(blob)
+	downloadElement.href = href
+	downloadElement.download = document.getElementById("luckysheet_info_detail_input").value + ".xlsx"; // 文件名字
+	document.body.appendChild(downloadElement)
+	downloadElement.click()
+	document.body.removeChild(downloadElement) // 下载完成移除元素
+	window.URL.revokeObjectURL(href) // 释放掉blob对象
 }
 
-var setMerge = function (luckyMerge = {}, worksheet) {
+const setMerge = function (luckyMerge = {}, worksheet) {
 	const mergearr = Object.values(luckyMerge)
 	mergearr.forEach(function (elem) { // elem格式：{r: 0, c: 0, rs: 1, cs: 2}
 		// 按开始行，开始列，结束行，结束列合并（相当于 K10:M12）
@@ -38,20 +36,27 @@ var setMerge = function (luckyMerge = {}, worksheet) {
 	})
 }
 
-var setBorder = function (luckyBorderInfo, worksheet) {
+const setBorder = function (luckyBorderInfo, worksheet) {
 	if (!Array.isArray(luckyBorderInfo)) return
 	luckyBorderInfo.forEach(function (elem) {
-        let rang = elem.value
+		let rang = elem.value
 		let border = borderConvert(rang)
 		// console.log(rang.column_focus + 1, rang.row_focus + 1)
-		worksheet.getCell(rang.row_index + 1, rang.col_index + 1).border = border
+		if (elem.rangeType !== "range")
+			worksheet.getCell(rang.row_index + 1, rang.col_index + 1).border = border
 	})
 }
-var setStyleAndValue = function (cellArr, worksheet) {
+const setStyleAndValue = function (cellArr, worksheet) {
 	if (!Array.isArray(cellArr)) return
 	cellArr.forEach(function (row, rowid) {
+		const dbrow = worksheet.getRow(rowid + 1);
+		dbrow.height = 16;
 		row.every(function (cell, columnid) {
 			if (!cell) return true
+			if (rowid === 0) {
+				const dobCol = worksheet.getColumn(columnid + 1);
+				dobCol.width = 12;
+			}
 			let fill = fillConvert(cell.bg)
 			let font = fontConvert(cell.ff, cell.fc, cell.bl, cell.it, cell.fs, cell.cl, cell.ul)
 			let alignment = alignmentConvert(cell.vt, cell.ht, cell.tb, cell.tr)
@@ -67,57 +72,62 @@ var setStyleAndValue = function (cellArr, worksheet) {
 			target.alignment = alignment
 			target.value = value
 			return true
-		}) 
+		})
 	})
 }
 
-var fillConvert = function (bg) {
+const fillConvert = function (bg) {
 	if (!bg) {
-		return {}
+		return {
+			type: 'pattern',
+			pattern: 'solid',
+			fgColor: { argb: 'ffffff' }
+		}
 	}
+	let arbg = colorHex(bg)
 	let fill = {
 		type: 'pattern',
 		pattern: 'solid',
-		fgColor: {argb: bg.replace('#', '')}
+		fgColor: { argb: arbg.replace('#', '') }
 	}
 	return fill
 }
 
-var fontConvert = function (ff = 0, fc = '#000000', bl = 0, it = 0, fs = 10, cl = 0, ul = 0) { // luckysheet：ff(样式), fc(颜色), bl(粗体), it(斜体), fs(大小), cl(删除线), ul(下划线)
+const fontConvert = function (ff = 0, fc = '#000000', bl = 0, it = 0, fs = 10, cl = 0, ul = 0) { // luckysheet：ff(样式), fc(颜色), bl(粗体), it(斜体), fs(大小), cl(删除线), ul(下划线)
 	const luckyToExcel = {
-		0: '微软雅黑',
-		1: '宋体（Song）',
-		2: '黑体（ST Heiti）',
-		3: '楷体（ST Kaiti）', 
-		4: '仿宋（ST FangSong）', 
-		5: '新宋体（ST Song）', 
-		6: '华文新魏', 
-		7: '华文行楷', 
-		8: '华文隶书', 
-		9: 'Arial', 
-		10: 'Times New Roman ',
-		11: 'Tahoma ',
-		12: 'Verdana',
+		0: 'Times New Roman',
+		1: 'Arial',
+		2: 'Tahoma',
+		3: 'Verdana',
+		4: '微软雅黑',
+		5: '宋体（Song）',
+		6: '黑体（ST Heiti）',
+		7: '楷体（ST Kaiti）',
+		8: '仿宋（ST FangSong）',
+		9: '新宋体（ST Song）',
+		10: '华文新魏',
+		11: '华文行楷',
+		12: '华文隶书',
 		num2bl: function (num) {
 			return num === 0 ? false : true
 		}
 	}
-	
+
 	let font = {
 		name: luckyToExcel[ff],
 		family: 1,
 		size: fs,
-		color: {argb: fc.replace('#', '')},
+		color: { argb: fc.replace('#', '') },
 		bold: luckyToExcel.num2bl(bl),
 		italic: luckyToExcel.num2bl(it),
 		underline: luckyToExcel.num2bl(ul),
 		strike: luckyToExcel.num2bl(cl)
 	}
-	
-	return font 
+
+	return font
 }
 
-var alignmentConvert = function (vt = 'default', ht = 'default', tb = 'default', tr = 'default') { // luckysheet:vt(垂直), ht(水平), tb(换行), tr(旋转)
+const alignmentConvert = function (vt = 'default', ht = 'default', tb = 'default', tr = 'default') { // luckysheet:vt(垂直), ht(水平), tb(换行), tr(旋转)
 	const luckyToExcel = {
 		vertical: {
 			0: 'middle',
@@ -147,7 +157,7 @@ var alignmentConvert = function (vt = 'default', ht = 'default', tb = 'default',
 			default: 0
 		}
 	}
-	
+
 	let alignment = {
 		vertical: luckyToExcel.vertical[vt],
 		horizontal: luckyToExcel.horizontal[ht],
@@ -155,10 +165,10 @@ var alignmentConvert = function (vt = 'default', ht = 'default', tb = 'default',
 		textRotation: luckyToExcel.textRotation[tr]
 	}
 	return alignment
-	
+
 }
 
-var borderConvert = function (val) { // 对应luckysheet的config中borderinfo的value的参数
+const borderConvert = function (val) { // 对应luckysheet的config中borderinfo的value的参数
 	if (!val) {
 		return {}
 	}
@@ -188,18 +198,18 @@ var borderConvert = function (val) { // 对应luckysheet的config中borderinfo�
 		}
 	}
 	let border = {}
-    if(val.t!=undefined){
-        border['top'] = {style:luckyToExcel.style[val.t.style] , color: val.t.color}
-    }
-    if(val.r!=undefined){
-        border['right'] = {style:luckyToExcel.style[val.r.style] , color: val.r.color}
-    }
-    if(val.b!=undefined){
-        border['bottom'] = {style:luckyToExcel.style[val.b.style] , color: val.b.color}
-    }
-    if(val.l!=undefined){
-        border['left'] = {style:luckyToExcel.style[val.l.style] , color: val.l.color}
-    }
+	if (val.t !== undefined) {
+		border['top'] = { style: luckyToExcel.style[val.t.style], color: val.t.color }
+	}
+	if (val.r !== undefined) {
+		border['right'] = { style: luckyToExcel.style[val.r.style], color: val.r.color }
+	}
+	if (val.b !== undefined) {
+		border['bottom'] = { style: luckyToExcel.style[val.b.style], color: val.b.color }
+	}
+	if (val.l !== undefined) {
+		border['left'] = { style: luckyToExcel.style[val.l.style], color: val.l.color }
+	}
 	return border
 }
 

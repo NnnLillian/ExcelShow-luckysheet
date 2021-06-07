@@ -1,5 +1,5 @@
 import React from 'react';
-import { tableData } from '../store/tableData';
+import { getTableData } from '../store/tableData';
 import { exportExcel } from '../tools/exportExcel';
 class Luckysheet extends React.Component {
 
@@ -39,15 +39,12 @@ class Luckysheet extends React.Component {
         sheetFormulaBar:false,
         defaultRowHeight: 23, //自定义行高
         defaultColWidth: 100, //自定义列宽
-        data:tableData
     }
-
 
     luckysheet = window.luckysheet;
 
     getCell=()=>{
         console.log(this.luckysheet.getLuckysheetfile())
-        // console.log(this.luckysheet.getAllSheets()[0])
     }
 
     exportLuckyExcel=()=>{
@@ -55,9 +52,14 @@ class Luckysheet extends React.Component {
     }
 
     componentDidMount() {
-        this.luckysheet.create(this.options);
+        getTableData('https://395a20ae-a4fd-4128-ad34-981ac18912c9.mock.pstmn.io/getSeatMap').then(res=>{
+            console.log("return", res.data.data)
+            this.options['data'] = res.data.data;
+            this.luckysheet.create(this.options);
+        })
     }
     render() {
+        console.log("render")
         const luckyCss = {
             margin: '0px',
             padding: '0px',
@@ -65,13 +67,13 @@ class Luckysheet extends React.Component {
             width: '100%',
             height: '100%',
             left: '0px',
-            top: '50px'
+            top: '0px'
         }
 
         return (
             <div>
-                <button onClick={this.getCell} style={{position:'absolute', top:'0px'}}>getCell</button>
-                <button onClick={this.exportLuckyExcel} style={{position:'absolute', top:'0px', right:'0px'}}>Export</button>
+                <button onClick={this.getCell} style={{position:'absolute', top:'0px', zIndex:5}}>getCell</button>
+                <button onClick={this.exportLuckyExcel} className='btn btn-primary' style={{position:'absolute', top:'12px', right:'10px', zIndex:5}}><i class="fa fa-download" aria-hidden="true"></i>   Export</button>
                 <div id="luckysheet" style={luckyCss}></div>
             </div>
             

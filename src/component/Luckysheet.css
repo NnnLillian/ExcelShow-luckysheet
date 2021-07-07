@@ -1,0 +1,20 @@
+.lucky-css {
+    margin: 0px;
+    padding: 0px;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0px;
+    top: 0px;
+}
+
+.table-export-true{
+    position: absolute;
+    top: 14px;
+    right: 10px;
+    z-index: 5;
+}
+
+.table-export-false{
+    display: none;
+}

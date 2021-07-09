@@ -1,11 +1,13 @@
 const axios = require('axios');
 
-exports.getTableData = async function (url) {
+export async function getTableData (url) {
     // console.log("getTabelData");
+    axios.defaults.baseURL="http://192.168.18.121:8080";
+    // axios.defaults.baseURL="http://192.168.10.119:666/gw/rms-wsm";
     try {
         const response = await axios.get(url);
         // deleteNull(response.data.data);
-        console.log(response.data.data)
+        console.log(response)
         return Promise.resolve(response.data);
     } catch (error) {
         console.error(error);

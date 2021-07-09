@@ -1,32 +1,6 @@
 const Excel = require('exceljs')
 const { colorHex } = require('./colorHex')
 
-exports.exportExcel = async function (luckysheet) { // 参数为luckysheet.getluckysheetfile()获取的对象
-	// 1.创建工作簿，可以为工作簿添加属性
-	const workbook = new Excel.Workbook()
-	// 2.创建表格，第二个参数可以配置创建什么样的工作表
-	luckysheet.every(function (table) {
-		if (table.data.length === 0) return true
-		const worksheet = workbook.addWorksheet(table.name)
-		// 3.设置单元格合并,设置单元格边框,设置单元格样式,设置值
-		setStyleAndValue(table.data, worksheet)
-		setMerge(table.config.merge, worksheet)
-		setBorder(table.config.borderInfo, worksheet)
-		return true
-	})
-	// 4.写入 buffer
-	const buffer = await workbook.xlsx.writeBuffer()
-	// 5.下载excel
-	let blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8' });
-	const downloadElement = document.createElement('a')
-	let href = window.URL.createObjectURL(blob)
-	downloadElement.href = href
-	downloadElement.download = document.getElementById("luckysheet_info_detail_input").value + ".xlsx"; // 文件名字
-	document.body.appendChild(downloadElement)
-	downloadElement.click()
-	document.body.removeChild(downloadElement) // 下载完成移除元素
-	window.URL.revokeObjectURL(href) // 释放掉blob对象
-}
 
 const setMerge = function (luckyMerge = {}, worksheet) {
 	const mergearr = Object.values(luckyMerge)
@@ -213,3 +187,29 @@ const borderConvert = function (val) { // 对应luckysheet的config中borderinfo
 	return border
 }
 
+export async function exportExcel (luckysheet) { // 参数为luckysheet.getluckysheetfile()获取的对象
+	// 1.创建工作簿，可以为工作簿添加属性
+	const workbook = new Excel.Workbook()
+	// 2.创建表格，第二个参数可以配置创建什么样的工作表
+	luckysheet.every(function (table) {
+		if (table.data.length === 0) return true
+		const worksheet = workbook.addWorksheet(table.name)
+		// 3.设置单元格合并,设置单元格边框,设置单元格样式,设置值
+		setStyleAndValue(table.data, worksheet)
+		setMerge(table.config.merge, worksheet)
+		setBorder(table.config.borderInfo, worksheet)
+		return true
+	})
+	// 4.写入 buffer
+	const buffer = await workbook.xlsx.writeBuffer()
+	// 5.下载excel
+	let blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8' });
+	const downloadElement = document.createElement('a')
+	let href = window.URL.createObjectURL(blob)
+	downloadElement.href = href
+	downloadElement.download = document.getElementById("luckysheet_info_detail_input").value + ".xlsx"; // 文件名字
+	document.body.appendChild(downloadElement)
+	downloadElement.click()
+	document.body.removeChild(downloadElement) // 下载完成移除元素
+	window.URL.revokeObjectURL(href) // 释放掉blob对象
+}

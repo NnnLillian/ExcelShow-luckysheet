@@ -62,11 +62,13 @@ class Luckysheet extends React.Component {
     }
 
     componentDidMount() {
-        const tableData = getTableData('https://395a20ae-a4fd-4128-ad34-981ac18912c9.mock.pstmn.io/getSeatMap')
+        // const tableData = getTableData('https://395a20ae-a4fd-4128-ad34-981ac18912c9.mock.pstmn.io/getSeatMap')
+        const tableData = getTableData('/QueryForm')
         console.log("tabledata", tableData);
         tableData.then(
             result => {
                 this.options['data'] = result.data;
+                // this.options['data'] = result.Data;
                 this.luckysheet.create(this.options);
                 this.setState({
                     pageState: true

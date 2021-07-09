@@ -67,7 +67,7 @@ class Luckysheet extends React.Component {
         console.log("tabledata", tableData);
         tableData.then(
             result => {
-                this.options['data'] = result.data;
+                this.options['data'] = result.Data;
                 // this.options['data'] = result.Data;
                 this.luckysheet.create(this.options);
                 this.setState({

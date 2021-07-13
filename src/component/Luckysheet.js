@@ -15,7 +15,12 @@ class Luckysheet extends React.Component {
         container: "luckysheet",
         title: '工位平面图',
         lang: 'zh',
-        showtoolbar: false,
+        showinfobar: true,
+        showtoolbar: true,
+        showsheetbarConfig:{
+			add: false,
+			menu: true,
+		},
         showstatisticBar: false,
         showstatisticBarConfig: {
             zoom: true, // 缩放
@@ -49,6 +54,12 @@ class Luckysheet extends React.Component {
         sheetFormulaBar: false,
         defaultRowHeight: 23, //自定义行高
         defaultColWidth: 100, //自定义列宽
+        hook:{
+            sheetActivate : function(sheetIndex,isPivotInitial,isNewSheet){
+                console.log("this sheet", sheetIndex)
+                window.postMessage(sheetIndex, '*')
+            }
+        }
     };
 
     luckysheet = window.luckysheet;
@@ -63,7 +74,7 @@ class Luckysheet extends React.Component {
 
     componentDidMount() {
         // const tableData = getTableData('https://395a20ae-a4fd-4128-ad34-981ac18912c9.mock.pstmn.io/getSeatMap')
-        const tableData = getTableData('/QueryForm')
+        const tableData = getTableData('/gw/rms-wsm/QueryForm')
         console.log("tabledata", tableData);
         tableData.then(
             result => {

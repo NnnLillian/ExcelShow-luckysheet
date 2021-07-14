@@ -57,7 +57,8 @@ class Luckysheet extends React.Component {
         hook:{
             sheetActivate : function(sheetIndex,isPivotInitial,isNewSheet){
                 console.log("this sheet", sheetIndex)
-                window.postMessage(sheetIndex, '*')
+                // eslint-disable-next-line no-restricted-globals
+                parent.postMessage(sheetIndex, '*')
             }
         }
     };

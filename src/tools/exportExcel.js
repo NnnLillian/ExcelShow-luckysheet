@@ -207,7 +207,7 @@ export async function exportExcel (luckysheet) { // 参数为luckysheet.getlucky
 	const downloadElement = document.createElement('a')
 	let href = window.URL.createObjectURL(blob)
 	downloadElement.href = href
-	downloadElement.download = document.getElementById("luckysheet_info_detail_input").value + ".xlsx"; // 文件名字
+	downloadElement.download = document.getElementById("luckysheet_info_detail_input").value + new Date().toLocaleDateString() + ".xlsx"; // 文件名字
 	document.body.appendChild(downloadElement)
 	downloadElement.click()
 	document.body.removeChild(downloadElement) // 下载完成移除元素

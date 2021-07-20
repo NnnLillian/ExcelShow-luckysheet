@@ -7,7 +7,7 @@ class Luckysheet extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            show: '数据获取中……',
+            show: <img src={require('../loading.gif')} alt="数据获取中" />,
             pageState: false
         }
     }
@@ -16,7 +16,7 @@ class Luckysheet extends React.Component {
         title: '工位平面图',
         lang: 'zh',
         showinfobar: true,
-        showtoolbar: true,
+        showtoolbar: false,
         showsheetbarConfig:{
 			add: false,
 			menu: true,
@@ -26,6 +26,15 @@ class Luckysheet extends React.Component {
             zoom: true, // 缩放
         },
         enableAddRow: false,
+        sheetRightClickConfig:{   
+            delete: false, // 删除
+            copy: false, // 复制
+            rename: false, //重命名
+            color: false, //更改颜色
+            hide: false, //隐藏，取消隐藏
+            move: false, //向左移，向右移
+        },
+        
         cellRightClickConfig: {
             copy: true, // 复制
             copyAs: false, // 复制为
@@ -95,7 +104,7 @@ class Luckysheet extends React.Component {
     render() {
         return (
             <div>
-                {!this.state.pageState && <span>{this.state.show}</span>}
+                {!this.state.pageState && <span className="data-loading">{this.state.show}</span>}
                 <div>
                     {/* <button onClick={this.getCell} style={{position:'absolute', top:'0px', zIndex:5}}>getCell</button> */}
                     <button onClick={this.exportLuckyExcel} className={`btn btn-primary table-export-${this.state.pageState}`}><i className="fa fa-download" aria-hidden="true"></i>   下载</button>
